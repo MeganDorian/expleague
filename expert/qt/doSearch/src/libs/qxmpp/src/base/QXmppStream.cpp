@@ -32,7 +32,7 @@
 #include <QBuffer>
 #include <QDomDocument>
 #include <QHostAddress>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSslSocket>
 #include <QStringList>
 #include <QTime>
@@ -69,7 +69,7 @@ QXmppStream::QXmppStream(QObject *parent)
     // Make sure the random number generator is seeded
     if (!randomSeeded)
     {
-        qsrand(QTime(0,0,0).msecsTo(QTime::currentTime()) ^ reinterpret_cast<quintptr>(this));
+        srand(QTime(0,0,0).msecsTo(QTime::currentTime()) ^ reinterpret_cast<quintptr>(this));
         randomSeeded = true;
     }
 }
@@ -213,10 +213,8 @@ void QXmppStream::_q_socketReadyRead()
     }
 
     // FIXME : maybe these QRegExps could be static?
-    QRegExp startStreamRegex("^(<\\?xml.*\\?>)?\\s*<stream:stream.*>");
-    startStreamRegex.setMinimal(true);
-    QRegExp endStreamRegex("</stream:stream>$");
-    endStreamRegex.setMinimal(true);
+    QRegularExpression startStreamRegex("^(<\\?xml.*\\?>)?\\s*<stream:stream.*>", QRegularExpression::InvertedGreedinessOption);
+    QRegularExpression endStreamRegex("</stream:stream>$", QRegularExpression::InvertedGreedinessOption);
 
     // check whether we need to add stream start / end elements
     //
@@ -246,7 +244,7 @@ void QXmppStream::_q_socketReadyRead()
 
     // process stream start
     if (streamStart) {
-        d->streamStart = startStreamRegex.cap(0).toUtf8();
+        d->streamStart = startStreamRegex.pattern().toUtf8();
         handleStream(doc.documentElement());
     }
 

@@ -151,7 +151,7 @@ QByteArray QXmppRtcpPacket::encode() const
     QByteArray ba;
     ba.resize(4 + d->payload.size());
 
-    QDataStream stream(&ba, QIODevice::WriteOnly);
+    QDataStream stream(&ba, QDataStream::WriteOnly);
     write(stream);
     return ba;
 }
@@ -231,7 +231,7 @@ void QXmppRtcpPacket::write(QDataStream &stream) const
     QByteArray payload;
     quint8 count;
 
-    QDataStream s(&payload, QIODevice::WriteOnly);
+    QDataStream s(&payload, QDataStream::WriteOnly);
     if (d->type == Goodbye) {
         count = d->goodbyeSsrcs.size();
         foreach (quint32 ssrc, d->goodbyeSsrcs)

@@ -24,7 +24,7 @@
 #include <QDate>
 #include <QDateTime>
 #include <QDomElement>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include "QXmppConstants.h"
 #include "QXmppJingleIq.h"
@@ -494,7 +494,7 @@ bool QXmppJingleIq::Content::parseSdp(const QString &sdp)
                         if (payloads[i].name() == "telephone-event") {
                             params.insert("events", paramStr);
                         } else {
-                            foreach (const QString p, paramStr.split(QRegExp(";\\s*"))) {
+                            foreach (const QString p, paramStr.split(QRegularExpression(";\\s*"))) {
                                 QStringList bits = p.split('=');
                                 if (bits.size() == 2)
                                     params.insert(bits[0], bits[1]);
@@ -576,7 +576,7 @@ QString QXmppJingleIq::Content::toSdp() const
     QHostAddress localRtpAddress = QHostAddress::Any;
     quint16 localRtpPort = 0;
     QList<QXmppJingleCandidate> sortedCandidates = d->transportCandidates;
-    qSort(sortedCandidates.begin(), sortedCandidates.end(), candidateLessThan);
+    std::sort(sortedCandidates.begin(), sortedCandidates.end(), candidateLessThan);
     foreach (const QXmppJingleCandidate &candidate, sortedCandidates) {
         if (candidate.component() == RTP_COMPONENT) {
             localRtpAddress = candidate.host();

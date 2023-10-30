@@ -29,7 +29,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QDomElement>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QString>
 #include <QStringList>
 #include <QXmlStreamWriter>
@@ -112,8 +112,9 @@ static quint32 crctable[256] =
 
 QDateTime QXmppUtils::datetimeFromString(const QString &str)
 {
-    QRegExp tzRe("(Z|([+-])([0-9]{2}):([0-9]{2}))");
-    int tzPos = tzRe.indexIn(str, 19);
+    QRegularExpression tzRe("(Z|([+-])([0-9]{2}):([0-9]{2}))");
+    QRegularExpressionMatch tzReMatch = tzRe.match(str, 19);
+    int tzPos = tzReMatch.capturedStart();
     if (str.size() < 20 || tzPos < 0)
         return QDateTime();
 
@@ -129,10 +130,10 @@ QDateTime QXmppUtils::datetimeFromString(const QString &str)
     }
 
     // process time zone
-    if (tzRe.cap(1) != "Z")
+    if (tzReMatch.captured(1) != "Z")
     {
-        int offset = tzRe.cap(3).toInt() * 3600 + tzRe.cap(4).toInt() * 60;
-        if (tzRe.cap(2) == "+")
+        int offset = tzReMatch.captured(3).toInt() * 3600 + tzReMatch.captured(4).toInt() * 60;
+        if (tzReMatch.captured(2) == "+")
             dt = dt.addSecs(-offset);
         else
             dt = dt.addSecs(offset);
@@ -157,18 +158,19 @@ QString QXmppUtils::datetimeToString(const QDateTime &dt)
 
 int QXmppUtils::timezoneOffsetFromString(const QString &str)
 {
-    QRegExp tzRe("(Z|([+-])([0-9]{2}):([0-9]{2}))");
-    if (!tzRe.exactMatch(str))
+    QRegularExpression tzRe(QRegularExpression::anchoredPattern("(Z|([+-])([0-9]{2}):([0-9]{2}))"));
+    QRegularExpressionMatch tzReMatch = tzRe.match(str);
+    if (!tzReMatch.hasMatch())
         return 0;
 
     // No offset from UTC
-    if (tzRe.cap(1) == "Z")
+    if (tzReMatch.captured(1) == "Z")
         return 0;
 
     // Calculate offset
-    const int offset = tzRe.cap(3).toInt() * 3600 +
-                       tzRe.cap(4).toInt() * 60;
-    if (tzRe.cap(2) == "-")
+    const int offset = tzReMatch.captured(3).toInt() * 3600 +
+                       tzReMatch.captured(4).toInt() * 60;
+    if (tzReMatch.captured(2) == "-")
         return -offset;
     else
         return offset;
@@ -278,7 +280,7 @@ int QXmppUtils::generateRandomInteger(int N)
 {
     Q_ASSERT(N > 0 && N <= RAND_MAX);
     int val;
-    while (N <= (val = qrand() / (RAND_MAX/N))) {};
+    while (N <= (val = rand() / (RAND_MAX/N))) {};
     return val;
 }
 

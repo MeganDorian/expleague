@@ -251,7 +251,7 @@ void QXmppPresence::parse(const QDomElement &element)
             d->capabilityNode = xElement.attribute("node");
             d->capabilityVer = QByteArray::fromBase64(xElement.attribute("ver").toLatin1());
             d->capabilityHash = xElement.attribute("hash");
-            d->capabilityExt = xElement.attribute("ext").split(" ", QString::SkipEmptyParts);
+            d->capabilityExt = xElement.attribute("ext").split(" ", Qt::SkipEmptyParts);
         }
         else if (xElement.tagName() == "addresses")
         {

@@ -87,7 +87,7 @@ QVariant QXmppInvokable::dispatch( const QByteArray & method, const QList< QVari
                                     genericArgs.value(8, QGenericArgument() ),
                                     genericArgs.value(9, QGenericArgument() )) )
     {
-        QVariant returnValue( resultType, result);
+        QVariant returnValue(QMetaType::fromName(typeName), result);
         QMetaType::destroy(resultType, result);
         return returnValue;
     }

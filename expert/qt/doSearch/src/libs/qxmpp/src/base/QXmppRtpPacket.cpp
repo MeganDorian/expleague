@@ -23,7 +23,7 @@
 
 #include <QDataStream>
 #include <QSharedData>
-
+#include <QStringList>
 #include "QXmppRtpPacket.h"
 
 #define RTP_VERSION 2
@@ -134,7 +134,7 @@ QByteArray QXmppRtpPacket::encode() const
     // fixed header
     QByteArray ba;
     ba.resize(d->payload.size() + 12 + 4 * d->csrc.size());
-    QDataStream stream(&ba, QIODevice::WriteOnly);
+    QDataStream stream(&ba, QDataStream::WriteOnly);
     stream << quint8((RTP_VERSION << 6) |
                      ((d->csrc.size() & 0xf) << 1));
     stream << quint8((d->type & 0x7f) | (d->marker << 7));

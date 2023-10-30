@@ -22,10 +22,12 @@
  */
 
 #include <cmath>
+#include <stdlib.h>
 
 #include <QDataStream>
 #include <QMetaType>
 #include <QTimer>
+#include <QRandomGenerator>
 
 #include "QXmppCodec_p.h"
 #include "QXmppJingleIq.h"
@@ -42,10 +44,12 @@
 
 /// Creates a new RTP channel.
 
+QRandomGenerator rng;
+
 QXmppRtpChannel::QXmppRtpChannel()
     : m_outgoingPayloadNumbered(false)
 {
-    m_outgoingSsrc = qrand();
+    m_outgoingSsrc = rng.generate();
 }
 
 /// Returns the local payload types.

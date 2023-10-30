@@ -26,6 +26,7 @@
 #include <QFileInfo>
 #include <QPluginLoader>
 #include <QSslCertificate>
+#include <QSslConfiguration>
 #include <QSslKey>
 #include <QSslSocket>
 
@@ -905,7 +906,9 @@ void QXmppSslServer::incomingConnection(qintptr socketDescriptor)
 
     if (!d->localCertificate.isNull() && !d->privateKey.isNull()) {
         socket->setProtocol(QSsl::AnyProtocol);
-        socket->addCaCertificates(d->caCertificates);
+        auto configuration = QSslConfiguration();
+        configuration.addCaCertificates(d->caCertificates);
+        socket->setSslConfiguration(configuration);
         socket->setLocalCertificate(d->localCertificate);
         socket->setPrivateKey(d->privateKey);
     }

@@ -29,6 +29,7 @@
 #include <QHostAddress>
 #include <QNetworkInterface>
 #include <QTime>
+#include <QElapsedTimer>
 #include <QTimer>
 #include <QUrl>
 
@@ -203,7 +204,7 @@ public:
     QString mimeType;
     QString requestId;
     QXmppTransferJob::State state;
-    QTime transferStart;
+    QElapsedTimer transferStart;
     bool deviceIsOwn;
 
     // file meta-data

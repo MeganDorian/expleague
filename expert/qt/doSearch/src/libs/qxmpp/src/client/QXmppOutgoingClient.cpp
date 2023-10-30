@@ -53,7 +53,7 @@
 #include <QCoreApplication>
 #include <QDomDocument>
 #include <QStringList>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QHostAddress>
 #include <QXmlStreamWriter>
 #include <QTimer>
@@ -118,7 +118,8 @@ void QXmppOutgoingClientPrivate::connectToHost(const QString &host, quint16 port
 
     // override CA certificates if requested
     if (!config.caCertificates().isEmpty())
-        q->socket()->setCaCertificates(config.caCertificates());
+        q->configuration().setCaCertificates(config.caCertificates());
+//        q->socket()->setSslConfiguration(config.caCertificates());
 
     // respect proxy
     q->socket()->setProxy(config.networkProxy());
@@ -487,11 +488,12 @@ void QXmppOutgoingClient::handleStanza(const QDomElement &nodeRecv)
     else if(ns == ns_stream && nodeRecv.tagName() == "error")
     {
         // handle redirects
-        QRegExp redirectRegex("([^:]+)(:[0-9]+)?");
-        if (redirectRegex.exactMatch(nodeRecv.firstChildElement("see-other-host").text())) {
-            d->redirectHost = redirectRegex.cap(0);
-            if (!redirectRegex.cap(2).isEmpty())
-                d->redirectPort = redirectRegex.cap(2).mid(1).toUShort();
+        QRegularExpression redirectRegex(QRegularExpression::anchoredPattern("([^:]+)(:[0-9]+)?"));
+        QRegularExpressionMatch redirectRegexMatch = redirectRegex.match(nodeRecv.firstChildElement("see-other-host").text());
+        if (redirectRegexMatch.hasMatch()) {
+            d->redirectHost = redirectRegexMatch.captured(0);
+            if (!redirectRegexMatch.captured(2).isEmpty())
+                d->redirectPort = redirectRegexMatch.captured(2).mid(1).toUShort();
             else
                 d->redirectPort = 5222;
             disconnectFromHost();
@@ -586,12 +588,13 @@ void QXmppOutgoingClient::handleStanza(const QDomElement &nodeRecv)
                 {
                     if (!bind.jid().isEmpty())
                     {
-                        QRegExp jidRegex("^([^@/]+)@([^@/]+)/(.+)$");
-                        if (jidRegex.exactMatch(bind.jid()))
+                        QRegularExpression jidRegex(QRegularExpression::anchoredPattern("^([^@/]+)@([^@/]+)/(.+)$"));
+                        QRegularExpressionMatch jidRegexMatch = jidRegex.match(bind.jid());
+                        if (jidRegexMatch.hasMatch())
                         {
-                            configuration().setUser(jidRegex.cap(1));
-                            configuration().setDomain(jidRegex.cap(2));
-                            configuration().setResource(jidRegex.cap(3));
+                            configuration().setUser(jidRegexMatch.captured(1));
+                            configuration().setDomain(jidRegexMatch.captured(2));
+                            configuration().setResource(jidRegexMatch.captured(3));
                         } else {
                             warning("Bind IQ received with invalid JID: " + bind.jid());
                         }
